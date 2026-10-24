@@ -7,8 +7,8 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
-    "test": "vitest --passWithNoTests",
-    "coverage": "vitest run --coverage",
+    "test": "jest --passWithNoTests",
+    "coverage": "jest --coverage",
     "prepare": "husky"
   },
   "keywords": [],
