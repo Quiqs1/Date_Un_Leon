@@ -14,13 +14,17 @@ jobs:
   build:
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
         with:
-          cache: 'npm'
-      - run: npm ci --legacy-peer-devs --no-fund --no-audit
-      - run: npm run build
-      - name: Elementos del proyecto
-        run: ls -la
+          version: 11.20.0
+          run_install: true
+      
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Run build
+        run: pnpm run build
+
 
         
