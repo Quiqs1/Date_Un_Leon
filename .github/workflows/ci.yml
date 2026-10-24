@@ -2,36 +2,38 @@ name: CI
 
 on:
   pull_request:
-    branches: ["main", "master"]
+    branches: ['main', 'master']
   push:
-    branches: ["main", "master"]
-  
+    branches: ['main', 'master']
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ubuntu-24.04 
+  quality:
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
+          cache: pnpm
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.15.0 
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      - name: Install Dependencies
-        run: pnpm install --no-frozen-lockfile
+      - name: Lint
+        run: pnpm -r --if-present run lint
+
+      - name: Typecheck
+        run: pnpm -r --if-present run typecheck
 
       - name: Build Web
-        run: pnpm --filter web build 
-
-      - name: Build Mobile / Other Apps
-        run: pnpm --filter mobile build
+        run: pnpm --filter web build
