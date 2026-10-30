@@ -28,7 +28,7 @@ ENV NODE_ENV=production
 WORKDIR /app
 
 COPY --from=builder /prod/api ./
-COPY --from=builder /app/apps/api/prisma ./prisma
+COPY --from=builder /apps/apps/api/prisma ./prisma
 
 RUN pnpm exec prisma generate && addgroup -S app && adduser -S app -G app && chown -R app:app /app
 USER app
