@@ -11,5 +11,4 @@ RUN pnpm install --frozen-lockfile
 COPY --from=pruner /app/out/full/ .
 RUN pnpm --filter @uniconnect/web build
 FROM nginx:1.27-alpine AS runner
-COPY docker/nginx-web.conf /etc/nginx/conf.d/default.conf
-
+COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
