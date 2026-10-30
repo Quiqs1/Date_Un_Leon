@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "echo 'API lista' && exit 0",
     "test": "jest --passWithNoTests"
   },
   "type": "module",
