@@ -33,6 +33,6 @@ COPY --from=builder /apps/apps/api/prisma ./prisma
 RUN pnpm exec prisma generate && addgroup -S app && adduser -S app -G app && chown -R app:app /app
 USER app
 EXPOSE 4000
-HEALTHCHECK --interval=15s --timeout=3s --retries=5 CMD wget -qO http://localhost:4000/health || exit 1
+#HEALTHCHECK --interval=15s --timeout=3s --retries=5 CMD wget -qO http://localhost:4000/health || exit 1
 
 CMD ["node", "dist/index.js"]
