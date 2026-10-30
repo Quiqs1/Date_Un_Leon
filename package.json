@@ -5,10 +5,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "vite build",
-    "dev": "vite",
-    "test": "jest --passWithNoTests",
-    "coverage": "jest --coverage",
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "coverage": "turbo run test --coverage",
     "prepare": "husky"
   },
   "keywords": [],
@@ -33,9 +35,7 @@
     "prisma": "8.0.0-rc.27",
     "supertest": "^7.3.1",
     "ts-node": "^10.9.2",
+    "turbo": "^2.11.10",
     "typescript": "^6.0.3"
-  },
-  "pnpm": {
-    
   }
 }
