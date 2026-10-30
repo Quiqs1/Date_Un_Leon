@@ -94,18 +94,18 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - run: cp .env.example .env
-      - run: docker compose up -d --build --wait 
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
+      - run: docker compose up -d --build --wait
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @uniconnect/e2e exec playwright install --with-deps chromium
       - run: pnpm --filter @uniconnect/e2e test
@@ -118,4 +118,3 @@ jobs:
         if: failure()
       - run: docker compose down -v
         if: always()
-    
