@@ -53,18 +53,19 @@ services:
     restart: unless-stopped
 
   web:
-  build: { context: ., dockerfile: apps/web/Dockerfile }
-  depends_on:
-    api: { condition: service_started }
+    build: { context: ., dockerfile: apps/web/Dockerfile }
+    depends_on:
+      api: { condition: service_started }
     restart: unless-stopped
 
   proxy:
-  image: nginx:1.27-alpine
-  volumes: ['./docker/proxy/nginx.conf:/etc/nginx/nginx.conf:ro']
-  ports: ['80:80']
-  depends_on:
-    - api
-    - web
+    image: nginx:1.27-alpine
+    volumes: ['./docker/proxy/nginx.conf:/etc/nginx/nginx.conf:ro']
+    ports: ['80:80']
+    depends_on:
+      - api
+      - web
+    restart: unless-stopped
 
 volumes:
   pgdata:
