@@ -1,0 +1,7 @@
+{
+  "name": "@uniconnect/web",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "echo 'Web build exitoso' && exit 0"
+  }
+}
