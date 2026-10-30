@@ -3,7 +3,8 @@ RUN corepack enable
 WORKDIR /app
 FROM base AS pruner
 COPY . .
-RUN npx turbo prune @uniconnect/web --docker
+RUN npm install -g turbo
+RUN npx turbo prune @uniconnect/mobile --docker
 FROM base AS builder
 COPY --from=pruner /app/out/json/ .
 RUN pnpm install --frozen-lockfile
