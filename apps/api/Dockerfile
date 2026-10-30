@@ -9,13 +9,13 @@ RUN turbo prune @uniconnect/api --docker
 
 FROM base AS builder 
 
-COPY --from=pruner /app/out/json/ .
+COPY --from=pruner /apps/out/json/ .
 
 
 RUN pnpm install --frozen-lockfile
 
 
-COPY --from=pruner /app/out/full/ .
+COPY --from=pruner /apps/out/full/ .
 
 
 RUN pnpm --filter @uniconnect/api exec prisma generate 
