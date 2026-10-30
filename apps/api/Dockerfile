@@ -3,7 +3,7 @@ RUN corepack enable && apk add --no-cache openssl
 WORKDIR /apps
 FROM base AS pruner
 COPY . .
-RUN npx turbo prune @uniconnect/api --docker
+RUN pnpm dlx turbo prune @uniconnect/api --docker
 
 FROM base AS builder 
 COPY --from=pruner /apps/api/ .
