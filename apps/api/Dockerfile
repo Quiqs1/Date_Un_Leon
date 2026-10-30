@@ -21,7 +21,7 @@ COPY --from=pruner /apps/out/full/ .
 RUN pnpm --filter @uniconnect/api exec prisma generate 
 RUN pnpm --filter @uniconnect/api build
 
-RUN pnpm --filter @uniconnect/api deploy --prod /prod/api
+RUN pnpm --filter @uniconnect/api deploy --prod --legacy /prod/api
 
 FROM base AS runner
 ENV NODE_ENV=production

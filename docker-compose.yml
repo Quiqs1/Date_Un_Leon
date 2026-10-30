@@ -23,7 +23,7 @@ services:
       retries: 10
 
   minio:
-    image: bitnami/minio:latest
+    image: ubuntu/minio
     command: server /data --console-address ':9001'
     environment:
       MINIO_ROOT_USER: ${S3_ACCESS_KEY}
@@ -37,7 +37,7 @@ services:
       retries: 10
 
   minio-init:
-    image: bitnami/minio-client:latest
+    image: minio/mc
     depends_on:
       minio: { condition: service_healthy }
     environment:
