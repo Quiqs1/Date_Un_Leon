@@ -3,7 +3,8 @@ RUN corepack enable && apk add --no-cache openssl
 WORKDIR /apps
 FROM base AS pruner
 COPY . .
-RUN pnpm dlx turbo prune @uniconnect/api --docker
+RUN npm install -g turbo
+RUN turbo prune @uniconnect/api --docker
 
 FROM base AS builder 
 COPY --from=pruner /apps/api/ .
