@@ -28,8 +28,8 @@ services:
     environment:
       initialBuckets: ${S3_BUCKET}
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:9000']
-      interval: 5s
+      test: ['CMD', 'nc', '-z', 'localhost', '9000']
+      interval: 5s  
       timeout: 3s
       retries: 10
 
