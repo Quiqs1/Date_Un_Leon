@@ -7,8 +7,32 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
+  id_user   Int      @id @default(autoincrement())
+  nombre    String   @db.VarChar(45)
+  apellidos String   @db.VarChar(45)
+  username  String   @unique @db.VarChar(45)
+  password  String   
+  correo    String   @unique
+  celular   String   @unique @db.VarChar(15)
   createdAt DateTime @default(now())
+  seguidos   Follow[] @relation("Seguidos")
+  seguidores Follow[] @relation("Seguidores")
+  id_carrera Int?     
+  carrera    Carrera? @relation(fields: [id_carrera], references: [id_carrera])
+}
+
+model Follow {
+  id_seguidor     Int 
+  id_seguido      Int
+  fecha_de_follow DateTime @default(now())
+  follower  User @relation("Seguidos", fields: [id_seguidor], references: [id_user])
+  following User @relation("Seguidores", fields: [id_seguido], references: [id_user])
+
+  @@id([id_seguidor, id_seguido])
+}
+
+model Carrera {
+  id_carrera Int    @id @default(autoincrement())
+  nombre     String @db.VarChar(150)
+  usuarios   User[]
 }
