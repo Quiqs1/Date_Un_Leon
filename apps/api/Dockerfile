@@ -37,4 +37,4 @@ RUN pnpm exec prisma generate && addgroup -S app && adduser -S app -G app && cho
 USER app
 EXPOSE 4000
 
-CMD ["node", "dist/src/index.js"]
+CMD ["sh", "-c", "node dist/src/index.js || node dist/index.js || (ls -laR dist && exit 1)"]
