@@ -1,8 +1,9 @@
-// @ts-nocheck
-import { defineConfig } from "prisma/config";
+import { config } from 'dotenv';
 
-export default defineConfig({
-  migrate: {
-    databaseUrl: process.env.DATABASE_URL!,
-  }
-});
+config({ path: '../../.env' });
+
+export default {
+  datasource: {
+    url: process.env.DATABASE_URL as string,
+  },
+};
