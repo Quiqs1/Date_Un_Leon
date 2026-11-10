@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "echo 'API lista' && exit 0",
+    "build": "tsc",
     "test": "jest --passWithNoTests",
-    "typecheck": "tsc"
+    "typecheck": "tsc --noEmit"
   },
   "type": "module",
   "dependencies": {
