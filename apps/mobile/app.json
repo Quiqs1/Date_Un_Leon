@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "Date A Lion",
+    "slug": "date-a-lion",
+    "scheme": "datealion",
+    "plugins": ["expo-router"],
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
