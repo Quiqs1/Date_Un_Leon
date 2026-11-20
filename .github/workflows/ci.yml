@@ -87,6 +87,8 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          file: apps/api/Dockerfile
+          push: false
           load: true
           tags: api-image:latest
           cache-from: type=gha
