@@ -7,32 +7,83 @@ datasource db {
 }
 
 model User {
-  id_user   Int      @id @default(autoincrement())
-  nombre    String   @db.VarChar(45)
-  apellidos String   @db.VarChar(45)
-  username  String   @unique @db.VarChar(45)
-  password  String   
-  correo    String   @unique
-  celular   String   @unique @db.VarChar(15)
-  createdAt DateTime @default(now())
-  seguidos   Follow[] @relation("Seguidos")
-  seguidores Follow[] @relation("Seguidores")
-  id_carrera Int?     
-  carrera    Carrera? @relation(fields: [id_carrera], references: [id_carrera])
-}
+  id_user    Int      @id @default(autoincrement())
+  nombre     String   @db.VarChar(45)
+  apellidos  String   @db.VarChar(45)
+  username   String   @unique @db.VarChar(45)
+  password   String
+  correo     String   @unique @db.VarChar(255)
+  celular    String?  @unique @db.VarChar(15)
+  createdAt  DateTime @default(now())
 
-model Follow {
-  id_seguidor     Int 
-  id_seguido      Int
-  fecha_de_follow DateTime @default(now())
-  follower  User @relation("Seguidos", fields: [id_seguidor], references: [id_user])
-  following User @relation("Seguidores", fields: [id_seguido], references: [id_user])
+  id_carrera Int?
+  carrera    Carrera? @relation(fields: [id_carrera], references: [id_carrera], onDelete: SetNull)
 
-  @@id([id_seguidor, id_seguido])
+  // Relaciones de follows
+  seguidos      Follow[] @relation("Seguidos")
+  seguidores    Follow[] @relation("Seguidores")
+  posts         Post[]
+
+  // Relaciones de likes y matches
+  likesDados     Like[]  @relation("LikesDados")
+  likesRecibidos Like[]  @relation("LikesRecibidos")
+  matches1       Match[] @relation("MatchUsuario1")
+  matches2       Match[] @relation("MatchUsuario2")
 }
 
 model Carrera {
   id_carrera Int    @id @default(autoincrement())
-  nombre     String @db.VarChar(150)
+  nombre     String @unique @db.VarChar(150)
   usuarios   User[]
+}
+
+model Follow {
+  id_seguidor     Int
+  id_seguido      Int
+  fecha_de_follow DateTime @default(now())
+
+  follower  User @relation("Seguidos", fields: [id_seguidor], references: [id_user], onDelete: Cascade)
+  following User @relation("Seguidores", fields: [id_seguido], references: [id_user], onDelete: Cascade)
+
+  @@id([id_seguidor, id_seguido])
+  @@index([id_seguido]) 
+}
+
+model Post {
+  id_post     Int      @id @default(autoincrement())
+  nombre      String   @db.VarChar(100) 
+  descripcion String   @db.Text
+  created_at  DateTime @default(now())
+  url         String?  @db.Text // Opcional por si hay posts solo de texto
+
+  id_user     Int
+  autor       User     @relation(fields: [id_user], references: [id_user], onDelete: Cascade)
+
+  @@index([id_user, created_at(sort: Desc)]) 
+}
+
+model Like {
+  id_like            Int      @id @default(autoincrement())
+  id_usuario_origen  Int
+  id_usuario_destino Int
+  created_at         DateTime @default(now())
+
+  origen  User @relation("LikesDados", fields: [id_usuario_origen], references: [id_user], onDelete: Cascade)
+  destino User @relation("LikesRecibidos", fields: [id_usuario_destino], references: [id_user], onDelete: Cascade)
+
+  @@unique([id_usuario_origen, id_usuario_destino])
+  @@index([id_usuario_destino]) 
+}
+
+model Match {
+  id_match   Int      @id @default(autoincrement())
+  usuario_1  Int
+  usuario_2  Int
+  created_at DateTime @default(now())
+
+  user1 User @relation("MatchUsuario1", fields: [usuario_1], references: [id_user], onDelete: Cascade)
+  user2 User @relation("MatchUsuario2", fields: [usuario_2], references: [id_user], onDelete: Cascade)
+
+  @@unique([usuario_1, usuario_2])
+  @@index([usuario_2])
 }
