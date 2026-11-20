@@ -8,9 +8,9 @@ on:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{github.event_name == 'pull_request'}}
 
-jobs:
+jobs: 
   quality:
     runs-on: ubuntu-24.04
     services:
@@ -51,7 +51,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run prisma
-        run: pnpm --filter @uniconnect/api exec prisma generate
+        run: | 
+          pnpm --filter @uniconnect/api exec prisma generate
+          pnpm --filter @uniconnect/api exec prisma migrate deploy
 
       - name: Lint
         run: pnpm -r --if-present run lint
@@ -87,6 +89,7 @@ jobs:
           context: .
           file: apps/api/Dockerfile
           push: false
+          load: true
           tags: api-image:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -105,7 +108,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: docker compose up -d --build --wait
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @uniconnect/e2e... install --frozen-lockfile
       - run: pnpm --filter @uniconnect/e2e exec playwright install --with-deps chromium
       - run: pnpm --filter @uniconnect/e2e test
       - uses: actions/upload-artifact@v4
