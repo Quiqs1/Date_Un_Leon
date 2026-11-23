@@ -9,4 +9,4 @@ pnpm install
 
 docker compose up -d postgres
 
-pnpm --filter @uniconnect/api exec prisma migrate dev
+pnpm --filter @uniconnect/api exec prisma migrate dev..
