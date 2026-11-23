@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Pressable, Alert, SafeAreaView, ScrollView, Modal, FlatList } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Pressable, SafeAreaView, ScrollView, Modal, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CARRERAS = [
   'Administración y Dirección de Empresas',
@@ -30,37 +31,57 @@ export default function RegisterScreen() {
   const [phone, setPhone] = useState('');
   const [career, setCareer] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+  
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertTitle, setAlertTitle] = useState('');
+  const [alertMessage, setAlertMessage] = useState('');
+  
   const router = useRouter();
 
-  const handleRegister = () => {
+  const showAlert = (title: string, message: string) => {
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setAlertVisible(true);
+  };
+
+  const handleRegister = async () => {
     if (!name.trim() || !username.trim() || !email.trim() || !password.trim() || !phone.trim() || !career.trim()) {
-      Alert.alert('Campos Incompletos', 'Todos los campos son obligatorios.');
+      showAlert('Campos Incompletos', 'Todos los campos son obligatorios.');
       return;
     }
 
     if (!email.toLowerCase().endsWith('@anahuac.mx')) {
-      Alert.alert('Correo Inválido', 'Debes usar tu correo institucional de la Anáhuac (@anahuac.mx)');
+      showAlert('Correo Inválido', 'Debes usar tu correo institucional (@anahuac.mx).');
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert('Contraseña Débil', 'La contraseña debe tener al menos 6 caracteres.');
+      showAlert('Contraseña Débil', 'La contraseña debe tener al menos 6 caracteres.');
       return;
     }
 
     if (phone.length < 10) {
-      Alert.alert('Teléfono Inválido', 'Por favor ingresa un número de teléfono válido (10 dígitos).');
+      showAlert('Teléfono Inválido', 'El número de teléfono debe tener 10 dígitos.');
       return;
     }
 
-    Alert.alert('¡Registro Exitoso!', `Bienvenido a la manada, @${username}`);
-    router.replace('/home');
+    try {
+      const nuevoUsuario = {
+        email: email.toLowerCase(),
+        username: username.toLowerCase(),
+        password: password
+      };
+      
+      await AsyncStorage.setItem('@user_data', JSON.stringify(nuevoUsuario));
+      router.replace('/home');
+    } catch (err) {
+      showAlert('Error', 'Hubo un problema al guardar tus datos.');
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        
         <View style={styles.header}>
           <Text style={styles.title}>Crea tu cuenta</Text>
           <Text style={styles.subtitle}>Únete a la manada</Text>
@@ -74,28 +95,28 @@ export default function RegisterScreen() {
             value={name}
             onChangeText={setName}
           />
-
+          
           <TextInput
             style={styles.input}
-            placeholder="Nombre de usuario (ej. cris_lion)"
+            placeholder="Nombre de usuario (ej. leon_anahuac)"
             placeholderTextColor="#666"
             value={username}
-            onChangeText={setUsername}
+            onChangeText={(text) => setUsername(text.toLowerCase())}
             autoCapitalize="none"
             autoCorrect={false}
           />
-
+          
           <TextInput
             style={styles.input}
-            placeholder="Correo @anahuac.mx"
+            placeholder="Tu correo@anahuac.mx"
             placeholderTextColor="#666"
             value={email}
-            onChangeText={setEmail}
+            onChangeText={(text) => setEmail(text.toLowerCase())}
             keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
           />
-
+          
           <TextInput
             style={styles.input}
             placeholder="Contraseña"
@@ -104,7 +125,7 @@ export default function RegisterScreen() {
             onChangeText={setPassword}
             secureTextEntry
           />
-
+          
           <TextInput
             style={styles.input}
             placeholder="Número de teléfono"
@@ -114,7 +135,7 @@ export default function RegisterScreen() {
             keyboardType="phone-pad"
             maxLength={10}
           />
-
+          
           <Pressable style={styles.input} onPress={() => setModalVisible(true)}>
             <Text style={{ color: career ? '#000000' : '#666', fontSize: 16 }}>
               {career || 'Selecciona tu carrera'}
@@ -135,19 +156,12 @@ export default function RegisterScreen() {
             <Text style={styles.buttonText}>Volver al Inicio</Text>
           </Pressable>
         </View>
-
       </ScrollView>
 
-      <Modal
-        visible={modalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setModalVisible(false)}
-      >
+      <Modal visible={modalVisible} animationType="slide" transparent={true} onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Selecciona tu Carrera</Text>
-            
             <FlatList
               data={CARRERAS}
               keyExtractor={(item) => item}
@@ -164,12 +178,21 @@ export default function RegisterScreen() {
                 </Pressable>
               )}
             />
-            
-            <Pressable 
-              style={styles.closeButton} 
-              onPress={() => setModalVisible(false)}
-            >
+            <Pressable style={styles.closeButton} onPress={() => setModalVisible(false)}>
               <Text style={styles.closeButtonText}>Cancelar</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={alertVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.alertCard}>
+            <Text style={styles.alertIcon}>⚠️</Text>
+            <Text style={styles.alertTitle}>{alertTitle}</Text>
+            <Text style={styles.alertMessage}>{alertMessage}</Text>
+            <Pressable style={styles.alertButton} onPress={() => setAlertVisible(false)}>
+              <Text style={styles.alertButtonText}>Entendido</Text>
             </Pressable>
           </View>
         </View>
@@ -192,53 +215,27 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3,
     justifyContent: 'center',
   },
-  button: { 
-    padding: 16, borderRadius: 12, alignItems: 'center', justifyContent: 'center', 
-    marginBottom: 12, backgroundColor: '#FFFFFF',
-  },
+  button: { padding: 16, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginBottom: 12, backgroundColor: '#FFFFFF' },
   buttonPrimary: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 5, elevation: 5 },
   buttonSecondary: { backgroundColor: '#FFFFFF', borderWidth: 2, borderColor: '#000000' },
   buttonPressed: { opacity: 0.8, transform: [{ scale: 0.98 }] },
   buttonText: { color: '#000000', fontSize: 16, fontWeight: 'bold' },
   
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    padding: 20,
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', padding: 24 },
+  modalContent: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, maxHeight: '80%' },
+  modalTitle: { fontSize: 22, fontWeight: 'bold', color: '#000000', marginBottom: 16, textAlign: 'center' },
+  careerItem: { paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#EEEEEE' },
+  careerText: { fontSize: 16, color: '#333333' },
+  closeButton: { marginTop: 16, backgroundColor: '#FF7A00', padding: 14, borderRadius: 10, alignItems: 'center' },
+  closeButtonText: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 16 },
+
+  alertCard: { 
+    backgroundColor: '#FFFFFF', width: '100%', borderRadius: 20, padding: 24, alignItems: 'center',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.25, shadowRadius: 10, elevation: 10,
   },
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 20,
-    maxHeight: '80%',
-  },
-  modalTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#000000',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  careerItem: {
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
-  },
-  careerText: {
-    fontSize: 16,
-    color: '#333333',
-  },
-  closeButton: {
-    marginTop: 16,
-    backgroundColor: '#FF7A00',
-    padding: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  closeButtonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 16,
-  }
+  alertIcon: { fontSize: 50, marginBottom: 10 },
+  alertTitle: { fontSize: 22, fontWeight: '900', color: '#000000', marginBottom: 8, textAlign: 'center' },
+  alertMessage: { fontSize: 16, color: '#555555', textAlign: 'center', marginBottom: 24, lineHeight: 22 },
+  alertButton: { backgroundColor: '#FF7A00', width: '100%', padding: 16, borderRadius: 12, alignItems: 'center' },
+  alertButtonText: { color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' }
 });
