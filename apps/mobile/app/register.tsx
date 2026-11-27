@@ -69,7 +69,6 @@ export default function RegisterScreen() {
       const nuevoUsuario = {
         email: email.toLowerCase(),
         username: username.toLowerCase(),
-        password: password
       };
       
       await AsyncStorage.setItem('@user_data', JSON.stringify(nuevoUsuario));
